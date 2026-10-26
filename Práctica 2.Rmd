@@ -142,3 +142,43 @@ g4 <- ggplot(d4, aes(x = .fecha, y = .ventas, colour = .fab, group = .fab)) +
 g4
 ggsave("data/results/Ejercicio4.pdf", plot = g4)
 ```
+# Ejercicio 5
+Añadir barras de error a un gráfico de línea.
+
+Carga el fichero Experimento.Rdata. Examina las variables que tiene dicho dataset.
+Representa un gráfico de puntos, en el que se muestre la Dosis en el eje x
+ y la Altura en el eje y
+. Queremos que los datos de cada Complemento se representen en una línea diferente con diferentes trazos. Hazlo incluyendo las opciones de tipo de línea y forma del punto dentro del aes() de la capa ggplot.
+Crea otro gráfico añadiendo al gráfico anterior barras de error en cada punto. El error viene dado por la variable Error_Altura.
+Crea otro gráfico, como el anterior (idéntico), pero en este caso no puedes incluir el tipo de línea y el tipo de punto en aes() de la capa ggplot. Además queremos que la paleta de colores sea en tonos de rojos (scale_color_brewer).
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio5.pdf.
+
+```{r}
+load("data/Experimento.Rdata")
+ls()  
+d5 <- Experimento  
+str(d5)
+ 
+# a) líneas por Complemento con linetype y shape DENTRO del aes() global
+ggplot(d5, aes(x = Dosis, y = Altura, group = Complemento,
+               linetype = Complemento, shape = Complemento)) +
+  geom_line() + geom_point()
+ 
+# b) + barras de error
+ggplot(d5, aes(x = Dosis, y = Altura, group = Complemento,
+               linetype = Complemento, shape = Complemento)) +
+  geom_errorbar(aes(ymin = Altura - Error_Altura, ymax = Altura + Error_Altura),
+                width = .1, position = position_dodge(0.05)) +
+  geom_line() + geom_point()
+ 
+# c) idéntico, pero linetype/shape en las capas (no en el ggplot) + paleta de rojos
+g5 <- ggplot(d5, aes(x = Dosis, y = Altura, group = Complemento, color = Complemento)) +
+  geom_errorbar(aes(ymin = Altura - Error_Altura, ymax = Altura + Error_Altura),
+                width = .1, position = position_dodge(0.05)) +
+  geom_line(aes(linetype = Complemento)) +
+  geom_point(aes(shape = Complemento)) +
+  scale_color_brewer(palette = "Reds") +
+  theme_classic()
+g5
+ggsave("data/results/Ejercicio5.pdf", plot = g5)
+```
