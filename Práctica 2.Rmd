@@ -12,14 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(pacman)
 pacman::p_load(tidyverse, ggplot2, RColorBrewer, latex2exp)
 dir.create("./results", showWarnings = FALSE)
- 
-# Helper: carga un .RData y devuelve el primer data.frame (o el objeto indicado)
-cargar <- function(f, obj = NULL) {
-  e <- new.env(); nm <- load(f, envir = e)
-  message("Objetos en ", basename(f), ": ", paste(nm, collapse = ", "))
-  if (!is.null(obj) && obj %in% nm) return(get(obj, e))
-  get(nm[which(sapply(nm, function(n) is.data.frame(get(n, e))))[1]], e)
-}
 ```
 
 # Ejercicio 1
@@ -33,7 +25,7 @@ Añade a grafico2 una capa para incluir un título con ggtitle() y almacénalo e
 Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio1.pdf. 
 
 ```{r}
-ds <- cargar("data/weatherAUS.RData", "ds")
+load("data/weatherAUS.RData")
  
 grafico1 <- ggplot(ds, aes(x = MinTemp, y = MaxTemp))
 grafico1 + geom_point()
@@ -60,7 +52,7 @@ ggplot(ds, aes(x = Temp9am, y = Pressure9am)) + geom_point()
 ggplot(ds, aes(x = Temp9am, y = Pressure9am, shape = RainToday)) + geom_point()
  
 ggplot(ds, aes(x = Temp9am, y = Pressure9am, colour = RainToday)) + geom_point()
-# R: con el COLOR se distingue mucho mejor (la forma se solapa con tantos puntos
+# Respuesta: con el COLOR se distingue mucho mejor (la forma se solapa con tantos puntos
 #    y es más difícil de percibir; el color se detecta mejor).
  
 g2 <- ggplot(ds, aes(x = Temp9am, y = Pressure9am, colour = RainToday)) +
@@ -73,4 +65,40 @@ g2 <- ggplot(ds, aes(x = Temp9am, y = Pressure9am, colour = RainToday)) +
        caption = "Fuente: weatherAUS")
 g2
 ggsave("data/results/Ejercicio2.pdf", plot = g2)
+```
+
+# Ejercicio 3
+Carga el fichero iris.tidy.Rdata utilizando lo aprendido en la práctica 1.
+Utiliza la función str() para ver qué variables contiene el dataset.
+Crea un objeto ggplot denominado iris.grafico1 en el que esté definido el conjunto de datos iris.tidy alojado en el fichero iris.tidy.RData y un aesthetics en el que en el eje x
+ esté definida la variable Species y en el eje y
+ esté definida la variable Value.
+Añade una capa que defina el objeto geométrico necesario para construir un gráfico de dispersión de las variables Species y Value.
+Modifica el aesthetics de iris.grafico1 para visualizar la variable categórica Part y almacénalo en iris.grafico2. A partir del objeto iris.grafico2, representa un gráfico de dispersión en el que se muestren los puntos dados por las variables Species y Value, y el color del punto se corresponda con el valor de la variable Part.
+Incluye información de la variable Measure haciendo dos gráficos de dispersión (dispuestos en filas) con facet_grid(), como en el apartado de introducción, para los dos valores que toma la variable Measure. Prueba a cambiar la disposición de los gráficos para que sea en columnas ¿Qué disposición, en filas o en columnas, permite comparar mejor los valores de las dos variables?
+Cambia ahora la capa geom_point() del gráfico anterior por la capa geom_jitter(). ¿Qué diferencia observas?
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio3.pdf.
+
+```{r}
+load("data/iris_tidy.Rdata")   # crea iris.tidy
+str(iris.tidy)
+
+iris.grafico1 <- ggplot(iris.tidy, aes(x = Species, y = Value))
+iris.grafico1 + geom_point()
+ 
+iris.grafico2 <- ggplot(iris.tidy, aes(x = Species, y = Value, colour = Part))
+iris.grafico2 + geom_point()
+ 
+# Facets en filas y en columnas
+iris.grafico2 + geom_point() + facet_grid(Measure ~ .)   # filas
+iris.grafico2 + geom_point() + facet_grid(. ~ Measure)   # columnas
+# Respuesta: en FILAS (uno sobre otro) se comparan mejor los valores porque comparten el
+#    eje x (Species) y la alineación vertical facilita comparar posiciones.
+#    (En columnas comparten el eje y, útil si lo que interesa es comparar escalas Y.)
+ 
+g3 <- iris.grafico2 + geom_jitter() + facet_grid(Measure ~ .)
+g3
+# Respuesta: geom_jitter añade ruido aleatorio a la posición de cada punto, evitando el
+#    solapamiento (overplotting) y permitiendo ver la densidad de observaciones.
+ggsave("./results/Ejercicio3.pdf", plot = g3)
 ```
