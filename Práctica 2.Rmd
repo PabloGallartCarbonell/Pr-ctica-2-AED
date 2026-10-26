@@ -46,3 +46,31 @@ grafico3 <- grafico2 + geom_point() +
 grafico3
 ggsave("data/results/Ejercicio1.pdf", plot = grafico3)
 ```
+# Ejercicio 2
+Utilizando ggplot haz un grafico de dispersión en el que representes las variables Temp9am y Pressure9am en los ejes x
+ e y
+ respectivamente.
+Modifica el gráfico anterior para incluir información categórica proporcionada por la variable RainToday con la forma del punto.
+Modifica el gráfico anterior para incluir información categórica proporcionada por la variable RainToday con el color del punto. ¿Con qué representación (color o forma) se observa mejor la información que introduce la variable RainToday?
+Añade títulos explicativos al gráfico anterior (debe aparece un título, subtítulo, leyendas e información de las variables representadas en los ejes).
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio2.pdf.
+```{r}
+ggplot(ds, aes(x = Temp9am, y = Pressure9am)) + geom_point()
+ 
+ggplot(ds, aes(x = Temp9am, y = Pressure9am, shape = RainToday)) + geom_point()
+ 
+ggplot(ds, aes(x = Temp9am, y = Pressure9am, colour = RainToday)) + geom_point()
+# R: con el COLOR se distingue mucho mejor (la forma se solapa con tantos puntos
+#    y es más difícil de percibir; el color se detecta mejor).
+ 
+g2 <- ggplot(ds, aes(x = Temp9am, y = Pressure9am, colour = RainToday)) +
+  geom_point() +
+  labs(title = "Presión atmosférica frente a temperatura a las 9am",
+       subtitle = "Observaciones diarias coloreadas según si llovió hoy",
+       x = "Temperatura a las 9am (ºC)",
+       y = "Presión a las 9am (hPa)",
+       colour = "¿Llovió hoy?",
+       caption = "Fuente: weatherAUS")
+g2
+ggsave("data/results/Ejercicio2.pdf", plot = g2)
+```
