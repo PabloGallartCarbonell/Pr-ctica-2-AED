@@ -182,3 +182,33 @@ g5 <- ggplot(d5, aes(x = Dosis, y = Altura, group = Complemento, color = Complem
 g5
 ggsave("data/results/Ejercicio5.pdf", plot = g5)
 ```
+# Ejercicio 6
+El fichero iceRiver.RData contiene información del caudal de dos ríos islandeses medidos a diarios durante 3 años. Puedes obtener información detallada de las variables usando > ?tseries::ice.river
+
+Representa el caudal de ambos ríos a lo largo del período considerado coloreando una serie (flow.vat) en color rojo y la otra en color azul.
+Utiliza la función labs para enriquecer el gráfico.
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio6.pdf.
+```{r}
+load("data/iceRiver.RData")
+ls()   
+ice <- as.data.frame(ice.river.df) 
+if (!"dia" %in% names(ice)) ice$dia <- seq_len(nrow(ice))   # índice temporal (días) si no existe
+#Escaneamos todas las columnas de la tabla buscando alguna que sea oficialmente de tipo fecha (Date o fecha y hora POSIXct).
+cf <- names(ice)[sapply(ice, function(x) inherits(x, c("Date", "POSIXct")))][1]
+if (!is.na(cf)) ice$dia <- ice[[cf]]
+#Si existen las tipo fecha, se reescribe la columna "dia" con esas. 
+
+# Detecta y guarda el nombre de la otra columna de flujo (excluyendo 'flow.vat')
+otro <- setdiff(grep("flow", names(ice), value = TRUE), "flow.vat")[1]   # normalmente flow.jok
+ 
+g6 <- ggplot(ice, aes(x = dia)) +
+  geom_line(aes(y = flow.vat, colour = "flow.vat")) +
+  geom_line(aes(y = .data[[otro]], colour = otro)) +
+  scale_colour_manual(values = setNames(c("red", "blue"), c("flow.vat", otro))) +
+  labs(title = "Caudal diario de dos ríos islandeses",
+       subtitle = "Serie de 3 años de medidas diarias",
+       x = "Día", y = "Caudal", colour = "Río",
+       caption = "Fuente: tseries::ice.river")
+g6
+ggsave("data/results/Ejercicio6.pdf", plot = g6)  
+```
