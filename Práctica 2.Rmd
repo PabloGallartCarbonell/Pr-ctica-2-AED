@@ -100,5 +100,45 @@ g3 <- iris.grafico2 + geom_jitter() + facet_grid(Measure ~ .)
 g3
 # Respuesta: geom_jitter añade ruido aleatorio a la posición de cada punto, evitando el
 #    solapamiento (overplotting) y permitiendo ver la densidad de observaciones.
-ggsave("./results/Ejercicio3.pdf", plot = g3)
+ggsave("data/results/Ejercicio3.pdf", plot = g3)
+```
+# Ejercicio 4
+Carga el fichero Ejercicio4_Data.Rdata. Examina las variables que tiene dicho dataset.
+Representa un gráfico de puntos, en el que se muestre la fecha en el eje x
+ y las ventas en el eje y
+. Queremos que los datos de cada fabricante sean de un color distinto. ¿Es este gráfico válido para evaluar la evolución de las ventas de cada fabricante?
+Representa un gráfico como el anterior en el que se muestre la línea que une los puntos que antes has representado.
+Modifica el gráfico anterior para que la tendencia de cada fabricante este trazada con un tipo de línea diferente.
+Añade el siguiente título al gráfico “Ventas mensuales de diferentes compañías tecnológicas”.
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio4.pdf.
+
+```{r}
+load("data/Ejercicio4_Data.Rdata")
+ls()   
+d4 <- DatosEjer4   
+str(d4)
+# Detección automática de columnas (fecha / ventas / fabricante)
+col_fecha <- names(d4)[sapply(d4, function(x) inherits(x, c("Date", "POSIXct")))][1]
+if (is.na(col_fecha)) col_fecha <- names(d4)[grep("fecha|date|mes|month", names(d4), ignore.case = TRUE)][1]
+col_ventas <- names(d4)[grep("venta|sales", names(d4), ignore.case = TRUE)][1]
+col_fab <- names(d4)[sapply(d4, function(x) is.factor(x) || is.character(x))][1]
+d4$.fecha <- d4[[col_fecha]]; d4$.ventas <- d4[[col_ventas]]; d4$.fab <- factor(d4[[col_fab]])
+ 
+# a) puntos con color por fabricante
+ggplot(d4, aes(x = .fecha, y = .ventas, colour = .fab)) + geom_point()
+# Respuesta: No es muy adecuado para ver la EVOLUCIÓN: sin unir los puntos cuesta seguir
+#    la tendencia temporal de cada fabricante.
+ 
+# b) con líneas
+ggplot(d4, aes(x = .fecha, y = .ventas, colour = .fab, group = .fab)) +
+  geom_point() + geom_line()
+ 
+# c) distinto tipo de línea por fabricante + d) título
+g4 <- ggplot(d4, aes(x = .fecha, y = .ventas, colour = .fab, group = .fab)) +
+  geom_point() +
+  geom_line(aes(linetype = .fab)) +
+  labs(title = "Ventas mensuales de diferentes compañías tecnológicas",
+       x = "Fecha", y = "Ventas", colour = "Fabricante", linetype = "Fabricante")
+g4
+ggsave("data/results/Ejercicio4.pdf", plot = g4)
 ```
