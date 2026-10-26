@@ -1,0 +1,48 @@
+---
+title: "Práctica 2"
+output: html_document
+date: "2026-10-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(pacman)
+pacman::p_load(tidyverse, ggplot2, RColorBrewer, latex2exp)
+dir.create("./results", showWarnings = FALSE)
+ 
+# Helper: carga un .RData y devuelve el primer data.frame (o el objeto indicado)
+cargar <- function(f, obj = NULL) {
+  e <- new.env(); nm <- load(f, envir = e)
+  message("Objetos en ", basename(f), ": ", paste(nm, collapse = ", "))
+  if (!is.null(obj) && obj %in% nm) return(get(obj, e))
+  get(nm[which(sapply(nm, function(n) is.data.frame(get(n, e))))[1]], e)
+}
+```
+
+# Ejercicio 1
+Carga el fichero weatherAUS.RData utilizando lo aprendido en la práctica 1.
+Crea un objeto ggplot denominado grafico1 en el que esté definido el conjunto de datos ds alojado en el fichero weatherAUS.RData y un aesthetics en el que en el eje x
+ esté definida la variable MinTemp y en el eje y
+ esté definida la variable MaxTemp.
+Añade una capa que defina el objeto geométrico necesario para construir un gráfico de dispersión de las variables MinTemp y MaxTemp.
+Genera ahora el mismo gráfico y almacénalo en grafico2 pero define el aesthetics para visualizar las variables MinTemp y MaxTemp en los ejes de la gráfica y la variable categórica RainTomorrow como el color. A partir del objeto grafico2, representa un gráfico de dispersión en el que se muestren los puntos con el color del punto correspondiente a la variable RainTomorrow.
+Añade a grafico2 una capa para incluir un título con ggtitle() y almacénalo en grafico3.
+Almacena en formato pdf el gráfico resultante en un fichero denominado Ejercicio1.pdf. 
+
+```{r}
+ds <- cargar("data/weatherAUS.RData", "ds")
+ 
+grafico1 <- ggplot(ds, aes(x = MinTemp, y = MaxTemp))
+grafico1 + geom_point()
+ 
+grafico2 <- ggplot(ds, aes(x = MinTemp, y = MaxTemp, colour = RainTomorrow))
+grafico2 + geom_point()
+ 
+grafico3 <- grafico2 + geom_point() +
+  ggtitle("Temperatura mínima vs máxima según lluvia al día siguiente")
+grafico3
+ggsave("data/results/Ejercicio1.pdf", plot = grafico3)
+```
